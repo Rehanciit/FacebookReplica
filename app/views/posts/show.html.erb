@@ -1,0 +1,56 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @post %>
+
+<div>
+  <%= link_to "Edit this post", edit_post_path(@post) %> |
+  <%= link_to "Back to posts", posts_path %>
+
+  <%= button_to "Destroy this post", @post, method: :delete %>
+  <br/>
+  <% if(@likes.include?(session[:user_id])) %>
+  <%= button_to "Dislike this post", unlike_path(@post), method: :delete %>
+  <% else %>
+  <%= button_to "like this post", like_path(@post), method: :put %>
+  <%end%>
+  <%= button_to "comment this post", newcomment_path(post_id:@post), method: :get %>
+</div>
+</br>
+
+<strong>Likes:</strong><%= @likes.size %>
+</br>
+
+<strong>Comments:</strong><%= @comments.size %>
+</br>
+
+
+<div id="comments" class="mt-2">
+  <%= render_comments(@comments) %>
+</div>
+<% def render_comments(comments) %>
+  <% comments.each do |comment| %>
+    <% unless comment.parent_comment %>
+      <div>
+        <strong><%= comment.user.name %></strong>: <%= comment.content %><br>
+        <p>
+          <%= link_to "Show this comment", comment %><br>
+          <%= link_to "Reply to this comment", newreply_path(@post, comment) %>
+        </p>
+        <%= render_child_comments(comment.replies) %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% def render_child_comments(replies) %>
+  <% replies.each do |reply| %>
+    <div style="margin-left: 20px;">
+      <strong><%= reply.user.name %></strong>: <%= reply.content %><br>
+      <p>
+        <%= link_to "Show this comment", reply %><br>
+        <%= link_to "Reply to this comment", newreply_path(@post, reply) %>
+      </p>
+      <%= render_child_comments(reply.replies) %>
+    </div>
+  <% end %>
+<% end %>
